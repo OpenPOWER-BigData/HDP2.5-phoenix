@@ -271,22 +271,11 @@ public class Indexer extends BaseRegionObserver {
           // get the index updates for all elements in this batch
           Collection<Pair<Mutation, byte[]>> indexUpdates =
                   this.builder.getIndexUpdate(miniBatchOp, mutations.values());
-          Iterator<Pair<Mutation, byte[]>> indexUpdatesItr = indexUpdates.iterator();
-          List<Mutation> localUpdates = new ArrayList<Mutation>(indexUpdates.size());
+          
+          
           current.addTimelineAnnotation("Built index updates, doing preStep");
           TracingUtils.addAnnotation(current, "index update count", indexUpdates.size());
-          while(indexUpdatesItr.hasNext()) {
-              Pair<Mutation, byte[]> next = indexUpdatesItr.next();
-              if (Bytes.compareTo(next.getSecond(), tableName) == 0) {
-                  localUpdates.add(next.getFirst());
-                  indexUpdatesItr.remove();
-              }
-          }
-          if (!localUpdates.isEmpty()) {
-              miniBatchOp.addOperationsFromCP(0,
-                  localUpdates.toArray(new Mutation[localUpdates.size()]));
-          }
-
+          
           // write them, either to WAL or the index tables
           doPre(indexUpdates, edit, durability);
       }
